@@ -2,10 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-interface CompanionCardProps {
-  companion: Companion;
-}
-
 export interface Companion {
   id: number;
   subject: string;
@@ -15,15 +11,19 @@ export interface Companion {
   color: string;
 }
 
-function CompanionCard({ companion }: CompanionCardProps) {
+function CompanionCard({
+  color,
+  subject,
+  name,
+  topic,
+  duration,
+  id,
+}: Companion) {
   return (
     <>
-      <article
-        className="companion-card"
-        style={{ backgroundColor: companion.color }}
-      >
+      <article className="companion-card" style={{ backgroundColor: color }}>
         <div className="flex justify-between items-center">
-          <div className="subject-badge">{companion.subject}</div>
+          <div className="subject-badge">{subject}</div>
           <button className="companion-bookmark">
             <Image
               src="/icons/bookmark.svg"
@@ -33,8 +33,8 @@ function CompanionCard({ companion }: CompanionCardProps) {
             />
           </button>
         </div>
-        <h2 className="text-2xl font-bold">{companion.name}</h2>
-        <p className="text-sm">{companion.topic}</p>
+        <h2 className="text-2xl font-bold">{name}</h2>
+        <p className="text-sm">{topic}</p>
         <div className="flex items-center gap-2">
           <Image
             src="/icons/clock.svg"
@@ -42,9 +42,9 @@ function CompanionCard({ companion }: CompanionCardProps) {
             width={12}
             height={13.5}
           />
-          <p className="text-sm">{companion.duration}</p>
+          <p className="text-sm">{duration}</p>
         </div>
-        <Link href={`/companions/${companion.id}`}>
+        <Link href={`/companions/${id}`}>
           <button className="btn-primary w-full justify-center">
             Lauch Lesson
           </button>
