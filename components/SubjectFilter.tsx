@@ -36,7 +36,7 @@ export function SubjectFilter() {
   }, [value]);
 
   useEffect(() => {
-    setTimeout(() => {
+    const delayDebounce = setTimeout(() => {
       if (subject && subject !== "all") {
         const newUrl = formUrlQuery({
           params: searchParams.toString(),
@@ -56,7 +56,8 @@ export function SubjectFilter() {
         }
       }
     }, 500);
-  });
+    return () => clearTimeout(delayDebounce);
+  }, [pathName, router, searchParams, subject]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

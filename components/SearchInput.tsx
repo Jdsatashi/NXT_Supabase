@@ -12,7 +12,7 @@ function SearchInput() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    setTimeout(() => {
+    const delayDebounce = setTimeout(() => {
       if (searchQuery) {
         const newUrl = formUrlQuery({
           params: searchParams.toString(),
@@ -32,7 +32,8 @@ function SearchInput() {
         }
       }
     }, 500);
-  }, [searchQuery, router, searchParams, pathName]);
+    return () => clearTimeout(delayDebounce);
+  }, [pathName, router, searchParams, searchQuery]);
   return (
     <div className="realative border border-black rounded-lg items-center flex gap-2 px-2 py-1h-fit">
       <Image src="/icons/search.svg" alt="search" width={15} height={15} />
