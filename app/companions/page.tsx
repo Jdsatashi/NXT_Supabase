@@ -13,8 +13,6 @@ async function CompanionLibrary({ searchParams }: SearchParams) {
 
   const companions = await getAllCompanions({ subject, topic });
 
-  console.table(companions);
-
   return (
     <main>
       <section className="flex justify-between gap-4 max-sm:flex-col">
