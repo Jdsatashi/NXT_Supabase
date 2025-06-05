@@ -23,10 +23,6 @@ async function ConpanionSession({ params }: param) {
 
   const companion = await getCompanion(id);
 
-  if (companion) {
-    console.log(companion);
-  }
-
   return (
     <main>
       <article className="flex rounded-border justify-between p-6 max-md:flex-col">
