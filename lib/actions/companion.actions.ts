@@ -27,8 +27,25 @@ export const getAllCompanions = async ({
   topic,
 }: GetAllCompanions) => {
   const supabase = createSupabaseClient();
+  const { userId } = await auth();
 
-  let query = supabase.from("companions").select("*", { count: "exact" });
+  let query;
+  if (!userId) {
+    query = supabase.from("companions").select("*", { count: "exact" });
+  } else {
+    query = supabase
+      .from("companions")
+      .select(
+        `
+      *,
+      bookmarks (
+        id,
+        user_id
+      )
+    `
+      )
+      .eq("bookmarks.user_id", userId);
+  }
 
   if (subject && topic) {
     query = query
@@ -157,4 +174,78 @@ export const newCompanionPermissions = async () => {
   const companionCount = data?.length || 0;
 
   return companionCount < limit;
+};
+
+export const getBookmarkedCompanion = async (id: number) => {
+  const { userId } = await auth();
+  const supabase = createSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("bookmarks")
+    .select()
+    .eq("companion_id", id)
+    .eq("user_id", userId);
+
+  if (error) {
+    console.log(error);
+    throw new Error(error?.message || "Failed to fetch bookmarks");
+  }
+  return data[0];
+};
+
+export const getBookmarkedCompanions = async () => {
+  const { userId } = await auth();
+  const supabase = createSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("bookmarks")
+    .select()
+    .eq("user_id", userId);
+
+  if (error) {
+    console.log(error);
+    throw new Error(error?.message || "Failed to fetch bookmarks");
+  }
+  return data.map(({ companion_id }) => companion_id);
+};
+
+export const updateBookmark = async (id: number) => {
+  const { userId } = await auth();
+  const supabase = createSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("bookmarks")
+    .select()
+    .eq("companion_id", id)
+    .eq("user_id", userId);
+
+  if (error) {
+    console.log(error);
+    throw new Error(error?.message || "Failed to fetch bookmarks");
+  }
+
+  const bookmarkId: number = data.length > 0 ? data[0].id : 0;
+  if (bookmarkId !== 0) {
+    const { error } = await supabase
+      .from("bookmarks")
+      .delete()
+      .eq("id", bookmarkId);
+    if (error) {
+      console.log(error);
+      throw new Error(error?.message || "Failed to unbookmark companion");
+    }
+    return null;
+  } else {
+    const { data, error } = await supabase
+      .from("bookmarks")
+      .insert({ companion_id: id, user_id: userId })
+      .select();
+
+    if (error) {
+      console.log(error);
+      throw new Error(error?.message || "Failed to bookmark companion");
+    }
+
+    return data[0];
+  }
 };

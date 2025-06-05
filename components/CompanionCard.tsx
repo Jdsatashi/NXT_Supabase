@@ -1,7 +1,13 @@
+"use client";
+
+import {
+  getAllCompanions,
+  updateBookmark,
+} from "@/lib/actions/companion.actions";
 import { getSubjectColor } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 export interface Companion {
   id: number;
@@ -10,9 +16,30 @@ export interface Companion {
   topic: string;
   duration: string;
   color: string;
+  bookmarks: Array<object>;
 }
 
-function CompanionCard({ subject, name, topic, duration, id }: Companion) {
+function CompanionCard({
+  subject,
+  name,
+  topic,
+  duration,
+  id,
+  bookmarks,
+}: Companion) {
+  const [bookmarked, setBookmarked] = useState(false);
+  const handleBookmarking = async () => {
+    setBookmarked(!bookmarked);
+    try {
+      await updateBookmark(id);
+    } catch (error) {
+      console.log(error);
+      setBookmarked(!bookmarked);
+    } finally {
+      await getAllCompanions({ subject, topic });
+    }
+  };
+
   return (
     <>
       <article
@@ -21,9 +48,13 @@ function CompanionCard({ subject, name, topic, duration, id }: Companion) {
       >
         <div className="flex justify-between items-center">
           <div className="subject-badge">{subject}</div>
-          <button className="companion-bookmark">
+          <button onClick={handleBookmarking} className="companion-bookmark">
             <Image
-              src="/icons/bookmark.svg"
+              src={
+                bookmarked || bookmarks?.length > 0
+                  ? "/icons/bookmark-filled.svg"
+                  : "/icons/bookmark.svg"
+              }
               alt="bookmark"
               width={12.5}
               height={15}
